@@ -158,6 +158,6 @@ classes, and the search methods in the AIMA library.
 - The planning problem for the "Have Cake and Eat it Too" problem in the book has been
 implemented in the `example_have_cake` module as an example.
 - The `tests` directory includes `unittest` test cases to evaluate your implementations. All tests should pass before you submit your project for review.
-- Use the `run_search` script is provided for gathering metrics for various search methods on any or all of the problems and should be used for this purpose.
+- The `run_search` script is provided for gathering metrics for various search methods on any or all of the problems and should be used for this purpose.
 
 
