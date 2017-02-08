@@ -1,7 +1,8 @@
 import os
 import sys
 parent = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.dirname(parent))import unittest
+sys.path.append(os.path.dirname(parent))
+import unittest
 from aimacode.utils import expr
 from aimacode.planning import Action
 from example_have_cake import have_cake
