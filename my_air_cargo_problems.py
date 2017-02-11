@@ -77,9 +77,9 @@ class AirCargoProblem(Problem):
             '''
             flys = []
             for fr in self.airports:
-                for p in self.planes:
-                    for to in self.airports:
-                        if fr != to:
+                for to in self.airports:
+                    if fr != to:
+                        for p in self.planes:
                             precond_pos = [expr("At({}, {})".format(p, fr)),
                                            ]
                             precond_neg = []
