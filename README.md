@@ -157,7 +157,9 @@ classes, and the search methods in the AIMA library.
 ## Examples and Testing:
 - The planning problem for the "Have Cake and Eat it Too" problem in the book has been
 implemented in the `example_have_cake` module as an example.
-- The `tests` directory includes `unittest` test cases to evaluate your implementations. All tests should pass before you submit your project for review.
+- The `tests` directory includes `unittest` test cases to evaluate your implementations. All tests should pass before you submit your project for review. From the AIND-Planning directory command line:
+    - `python -m unittest tests.test_my_air_cargo_problems`
+    - `python -m unittest tests.test_my_planning_graph`
 - The `run_search` script is provided for gathering metrics for various search methods on any or all of the problems and should be used for this purpose.
 
 
