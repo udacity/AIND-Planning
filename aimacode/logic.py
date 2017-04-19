@@ -4,7 +4,6 @@ Covers both Propositional and First-Order Logic. First we have four
 important data types:
 
     KB            Abstract class holds a knowledge base of logical expressions
-    KB_Agent      Abstract class subclasses agents.Agent
     Expr          A logical expression, imported from utils.py
     substitution  Implemented as a dictionary of var:value pairs, {x:1, y:x}
 
@@ -32,13 +31,10 @@ And a few other functions:
 """
 
 from .utils import (
-    removeall, unique, first, argmax, probability,
-    isnumber, issequence, Symbol, Expr, expr, subexpressions
+    removeall, unique, first, isnumber, issequence, Expr, expr, subexpressions
 )
-import aimacode.agents as agents
 
 import itertools
-import random
 from collections import defaultdict
 
 # ______________________________________________________________________________
@@ -77,8 +73,7 @@ class KB:
 
 
 class PropKB(KB):
-
-    "A KB for propositional logic. Inefficient, with no indexing."
+    """A KB for propositional logic. Inefficient, with no indexing. """
 
     def __init__(self, sentence=None):
         self.clauses = []
@@ -107,29 +102,6 @@ class PropKB(KB):
                 self.clauses.remove(c)
 
 # ______________________________________________________________________________
-
-
-def KB_AgentProgram(KB):
-    """A generic logical knowledge-based agent program. [Figure 7.1]"""
-    steps = itertools.count()
-
-    def program(percept):
-        t = next(steps)
-        KB.tell(make_percept_sentence(percept, t))
-        action = KB.ask(make_action_query(t))
-        KB.tell(make_action_sentence(action, t))
-        return action
-
-    def make_percept_sentence(self, percept, t):
-        return Expr("Percept")(percept, t)
-
-    def make_action_query(self, t):
-        return expr("ShouldDo(action, {})".format(t))
-
-    def make_action_sentence(self, action, t):
-        return Expr("Did")(action[expr('action')], t)
-
-    return program
 
 
 def is_symbol(s):
@@ -306,9 +278,9 @@ def to_cnf(s):
 
 def eliminate_implications(s):
     "Change implications into equivalent form with only &, |, and ~ as logical operators."
-    if s == False:
+    if s is False:
         s = expr("F")
-    if s == True:
+    if s is True:
         s = expr("T")
     s = expr(s)
     if not s.args or is_symbol(s.op):
@@ -636,137 +608,6 @@ def inspect_literal(literal):
     else:
         return literal, True
 
-# ______________________________________________________________________________
-# Walk-SAT [Figure 7.18]
-
-
-def WalkSAT(clauses, p=0.5, max_flips=10000):
-    """Checks for satisfiability of all clauses by randomly flipping values of variables
-    """
-    # Set of all symbols in all clauses
-    symbols = set(sym for clause in clauses for sym in prop_symbols(clause))
-    # model is a random assignment of true/false to the symbols in clauses
-    model = {s: random.choice([True, False]) for s in symbols}
-    for i in range(max_flips):
-        satisfied, unsatisfied = [], []
-        for clause in clauses:
-            (satisfied if pl_true(clause, model) else unsatisfied).append(clause)
-        if not unsatisfied:  # if model satisfies all the clauses
-            return model
-        clause = random.choice(unsatisfied)
-        if probability(p):
-            sym = random.choice(prop_symbols(clause))
-        else:
-            # Flip the symbol in clause that maximizes number of sat. clauses
-            def sat_count(sym):
-                # Return the the number of clauses satisfied after flipping the symbol.
-                model[sym] = not model[sym]
-                count = len([clause for clause in clauses if pl_true(clause, model)])
-                model[sym] = not model[sym]
-                return count
-            sym = argmax(prop_symbols(clause), key=sat_count)
-        model[sym] = not model[sym]
-    # If no solution is found within the flip limit, we return failure
-    return None
-
-# ______________________________________________________________________________
-
-
-class HybridWumpusAgent(agents.Agent):
-
-    "An agent for the wumpus world that does logical inference. [Figure 7.20]"""
-
-    def __init__(self):
-        raise NotImplementedError
-
-
-def plan_route(current, goals, allowed):
-    raise NotImplementedError
-
-# ______________________________________________________________________________
-
-
-def SAT_plan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
-    """Converts a planning problem to Satisfaction problem by translating it to a cnf sentence.
-    [Figure 7.22]"""
-
-    # Functions used by SAT_plan
-    def translate_to_SAT(init, transition, goal, time):
-        clauses = []
-        states = [state for state in transition]
-
-        # Symbol claiming state s at time t
-        state_counter = itertools.count()
-        for s in states:
-            for t in range(time+1):
-                state_sym[s, t] = Expr("State_{}".format(next(state_counter)))
-
-        # Add initial state axiom
-        clauses.append(state_sym[init, 0])
-
-        # Add goal state axiom
-        clauses.append(state_sym[goal, time])
-
-        # All possible transitions
-        transition_counter = itertools.count()
-        for s in states:
-            for action in transition[s]:
-                s_ = transition[s][action]
-                for t in range(time):
-                    # Action 'action' taken from state 's' at time 't' to reach 's_'
-                    action_sym[s, action, t] = Expr("Transition_{}".format(next(transition_counter)))
-
-                    # Change the state from s to s_
-                    clauses.append(action_sym[s, action, t] |'==>'| state_sym[s, t])
-                    clauses.append(action_sym[s, action, t] |'==>'| state_sym[s_, t + 1])
-
-        # Allow only one state at any time
-        for t in range(time+1):
-            # must be a state at any time
-            clauses.append(associate('|', [state_sym[s, t] for s in states]))
-
-            for s in states:
-                for s_ in states[states.index(s) + 1:]:
-                    # for each pair of states s, s_ only one is possible at time t
-                    clauses.append((~state_sym[s, t]) | (~state_sym[s_, t]))
-
-        # Restrict to one transition per timestep
-        for t in range(time):
-            # list of possible transitions at time t
-            transitions_t = [tr for tr in action_sym if tr[2] == t]
-
-            # make sure at least one of the transitions happens
-            clauses.append(associate('|', [action_sym[tr] for tr in transitions_t]))
-
-            for tr in transitions_t:
-                for tr_ in transitions_t[transitions_t.index(tr) + 1 :]:
-                    # there cannot be two transitions tr and tr_ at time t
-                    clauses.append(~action_sym[tr] | ~action_sym[tr_])
-
-        # Combine the clauses to form the cnf
-        return associate('&', clauses)
-
-    def extract_solution(model):
-        true_transitions = [t for t in action_sym if model[action_sym[t]]]
-        # Sort transitions based on time, which is the 3rd element of the tuple
-        true_transitions.sort(key=lambda x: x[2])
-        return [action for s, action, time in true_transitions]
-
-    # Body of SAT_plan algorithm
-    for t in range(t_max):
-        # dictionaries to help extract the solution from model
-        state_sym = {}
-        action_sym = {}
-
-        cnf = translate_to_SAT(init, transition, goal, t)
-        model = SAT_solver(cnf)
-        if model is not False:
-            return extract_solution(model)
-    return None
-
-
-# ______________________________________________________________________________
-
 
 def unify(x, y, s):
     """Unify expressions x,y with substitution s; return a substitution that
@@ -904,34 +745,6 @@ class FolKB(KB):
 
     def fetch_rules_for_goal(self, goal):
         return self.clauses
-
-
-test_kb = FolKB(
-    map(expr, ['Farmer(Mac)',
-               'Rabbit(Pete)',
-               'Mother(MrsMac, Mac)',
-               'Mother(MrsRabbit, Pete)',
-               '(Rabbit(r) & Farmer(f)) ==> Hates(f, r)',
-               '(Mother(m, c)) ==> Loves(m, c)',
-               '(Mother(m, r) & Rabbit(r)) ==> Rabbit(m)',
-               '(Farmer(f)) ==> Human(f)',
-               # Note that this order of conjuncts
-               # would result in infinite recursion:
-               # '(Human(h) & Mother(m, h)) ==> Human(m)'
-               '(Mother(m, h) & Human(h)) ==> Human(m)'
-               ]))
-
-crime_kb = FolKB(
-    map(expr,
-             ['(American(x) & Weapon(y) & Sells(x, y, z) & Hostile(z)) ==> Criminal(x)',  # noqa
-              'Owns(Nono, M1)',
-              'Missile(M1)',
-              '(Missile(x) & Owns(Nono, x)) ==> Sells(West, x, Nono)',
-              'Missile(x) ==> Weapon(x)',
-              'Enemy(x, America) ==> Hostile(x)',
-              'American(West)',
-              'Enemy(Nono, America)'
-              ]))
 
 
 def fol_bc_ask(KB, query):
