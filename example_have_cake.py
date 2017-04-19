@@ -1,9 +1,8 @@
 from aimacode.logic import PropKB
 from aimacode.planning import Action
 from aimacode.search import (
-    Node, breadth_first_search, astar_search,
-    depth_first_graph_search, uniform_cost_search, greedy_best_first_graph_search,
-    Problem,
+    Node, breadth_first_search, astar_search, depth_first_graph_search,
+    uniform_cost_search, greedy_best_first_graph_search, Problem,
 )
 from aimacode.utils import expr
 from lp_utils import (
@@ -11,6 +10,8 @@ from lp_utils import (
 )
 from my_planning_graph import PlanningGraph
 from run_search import run_search
+
+from functools import lru_cache
 
 
 class HaveCakeProblem(Problem):
@@ -82,6 +83,7 @@ class HaveCakeProblem(Problem):
         h_const = 1
         return h_const
 
+    @lru_cache(maxsize=8192)
     def h_pg_levelsum(self, node: Node):
         # uses the planning graph level-sum heuristic calculated
         # from this node to the goal
@@ -90,6 +92,7 @@ class HaveCakeProblem(Problem):
         pg_levelsum = pg.h_levelsum()
         return pg_levelsum
 
+    @lru_cache(maxsize=8192)
     def h_ignore_preconditions(self, node: Node):
         # not implemented
         count = 0

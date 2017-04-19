@@ -9,6 +9,8 @@ from lp_utils import (
 )
 from my_planning_graph import PlanningGraph
 
+from functools import lru_cache
+
 
 class AirCargoProblem(Problem):
     def __init__(self, cargos, planes, airports, initial: FluentState, goal: list):
@@ -34,7 +36,7 @@ class AirCargoProblem(Problem):
         self.actions_list = self.get_actions()
 
     def get_actions(self):
-        '''
+        """
         This method creates concrete actions (no variables) for all actions in the problem
         domain action schema and turns them into complete Action objects as defined in the
         aimacode.planning module. It is computationally expensive to call this method directly;
@@ -44,7 +46,7 @@ class AirCargoProblem(Problem):
         ----------
         list<Action>
             list of Action objects
-        '''
+        """
 
         # TODO create concrete Action objects based on the domain action schema for: Load, Unload, and Fly
         # concrete actions definition: specific literal action that does not include variables as with the schema
@@ -53,28 +55,28 @@ class AirCargoProblem(Problem):
         # forward search and Planning Graphs must use Propositional Logic
 
         def load_actions():
-            '''Create all concrete Load actions and return a list
+            """Create all concrete Load actions and return a list
 
             :return: list of Action objects
-            '''
+            """
             loads = []
             # TODO create all load ground actions from the domain Load action
             return loads
 
         def unload_actions():
-            '''Create all concrete Unload actions and return a list
+            """Create all concrete Unload actions and return a list
 
             :return: list of Action objects
-            '''
+            """
             unloads = []
             # TODO create all Unload ground actions from the domain Unload action
             return unloads
 
         def fly_actions():
-            '''Create all concrete Fly actions and return a list
+            """Create all concrete Fly actions and return a list
 
             :return: list of Action objects
-            '''
+            """
             flys = []
             for fr in self.airports:
                 for to in self.airports:
@@ -136,25 +138,25 @@ class AirCargoProblem(Problem):
         h_const = 1
         return h_const
 
+    @lru_cache(maxsize=8192)
     def h_pg_levelsum(self, node: Node):
-        '''
-        This heuristic uses a planning graph representation of the problem
+        """This heuristic uses a planning graph representation of the problem
         state space to estimate the sum of all actions that must be carried
         out from the current state in order to satisfy each individual goal
         condition.
-        '''
+        """
         # requires implemented PlanningGraph class
         pg = PlanningGraph(self, node.state)
         pg_levelsum = pg.h_levelsum()
         return pg_levelsum
 
+    @lru_cache(maxsize=8192)
     def h_ignore_preconditions(self, node: Node):
-        '''
-        This heuristic estimates the minimum number of actions that must be
+        """This heuristic estimates the minimum number of actions that must be
         carried out from the current state in order to satisfy all of the goal
         conditions by ignoring the preconditions required for an action to be
         executed.
-        '''
+        """
         # TODO implement (see Russell-Norvig Ed-3 10.2.3  or Russell-Norvig Ed-2 11.2)
         count = 0
         return count
