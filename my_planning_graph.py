@@ -81,8 +81,8 @@ class PgNode_s(PgNode):
         :return:
             print only
         """
-        if not self.is_pos:
-            print("\n*** ~{}".format(self.symbol))
+        if self.is_pos:
+            print("\n*** {}".format(self.symbol))
         else:
             print("\n*** ~{}".format(self.symbol))
         PgNode.show(self)
