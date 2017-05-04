@@ -161,6 +161,14 @@ implemented in the `example_have_cake` module as an example.
     - `python -m unittest tests.test_my_planning_graph`
 - The `run_search` script is provided for gathering metrics for various search methods on any or all of the problems and should be used for this purpose.
 
+## Submission
+Before submitting your solution to a reviewer, you are required to submit your project to Udacity's Project Assistant, which will provide some initial feedback.  
+
+The setup is simple.  If you have not installed the client tool already, then you may do so with the command `pip install udacity-pa`.  
+
+To submit your code to the project assistant, run `udacity submit` from within the top-level directory of this project.  You will be prompted for a username and password.  If you login using google or facebook, visit [this link](https://project-assistant.udacity.com/auth_tokens/jwt_login) for alternate login instructions.
+
+This process will create a zipfile in your top-level directory named cargo_planning-<id>.zip.  This is the file that you should submit to the Udacity reviews system.
 
 ## Improving Execution Time
 
