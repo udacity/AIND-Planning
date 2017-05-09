@@ -5,3 +5,4 @@ __pycache__
 *.json
 .idea/
 tests/.cache/v/cache/lastfailed
+.cache/v/cache/lastfailed
