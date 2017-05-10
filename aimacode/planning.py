@@ -64,3 +64,7 @@ class Action:
         # add positive literals
         for clause in self.effect_add:
             kb.tell(self.substitute(clause, args))
+            
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
+
