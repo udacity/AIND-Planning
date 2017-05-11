@@ -5,7 +5,7 @@ from udacity_pa import udacity
 
 nanodegree = 'nd889'
 projects = ['cargo_planning']
-filenames_all = ['my_air_cargo_problems.py', 'my_planning_graph.py', 'heuristics_analysis.pdf', 'research_report.pdf']
+filenames_all = ['my_air_cargo_problems.py', 'my_planning_graph.py', 'heuristics_analysis.pdf', 'research_review.pdf']
 
 def submit(args):
   filenames = []
