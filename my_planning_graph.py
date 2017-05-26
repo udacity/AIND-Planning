@@ -311,6 +311,15 @@ class PlanningGraph():
         #   to see if a proposed PgNode_a has prenodes that are a subset of the previous S level.  Once an
         #   action node is added, it MUST be connected to the S node instances in the appropriate s_level set.
 
+        self.a_levels.append(set())
+
+        for action in self.all_actions:
+            pg_action = PgNode_a(action)
+
+            if all([s_node in self.s_levels[level] for s_node in pg_action.prenodes]):
+                pg_action.parents = self.s_levels[level]
+                self.a_levels[level].add(pg_action)
+
     def add_literal_level(self, level):
         """ add an S (literal) level to the Planning Graph
 
@@ -328,6 +337,15 @@ class PlanningGraph():
         #   may be "added" to the set without fear of duplication.  However, it is important to then correctly create and connect
         #   all of the new S nodes as children of all the A nodes that could produce them, and likewise add the A nodes to the
         #   parent sets of the S nodes
+
+        self.s_levels.append(set())
+
+        for action in self.a_levels[level - 1]:
+            for eff_node in action.effnodes:
+                pg_node = PgNode_s(eff_node.symbol, eff_node.is_pos)
+                pg_node.parents.add(action)
+                action.children.add(pg_node)
+                self.s_levels[level].add(pg_node)
 
     def update_a_mutex(self, nodeset):
         """ Determine and update sibling mutual exclusion for A-level nodes
@@ -386,7 +404,11 @@ class PlanningGraph():
         :return: bool
         """
         # TODO test for Inconsistent Effects between nodes
-        return False
+        for eff_a1 in node_a1.effnodes:
+            for eff_a2 in node_a2.effnodes:
+                if eff_a1.symbol == eff_a2.symbol and eff_a1 != eff_a2:
+                    return False
+        return True
 
     def interference_mutex(self, node_a1: PgNode_a, node_a2: PgNode_a) -> bool:
         """
@@ -403,7 +425,16 @@ class PlanningGraph():
         :return: bool
         """
         # TODO test for Interference between nodes
-        return False
+        for eff_a1 in node_a1.effnodes:
+            for eff_a2 in node_a2.prenodes:
+                if eff_a1.symbol == eff_a2.symbol and eff_a1 != eff_a2:
+                    return False
+
+        for eff_a2 in node_a2.effnodes:
+            for eff_a1 in node_a1.prenodes:
+                if eff_a1.symbol == eff_a2.symbol and eff_a1 != eff_a2:
+                    return False
+        return True
 
     def competing_needs_mutex(self, node_a1: PgNode_a, node_a2: PgNode_a) -> bool:
         """
