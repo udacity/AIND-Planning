@@ -303,7 +303,6 @@ class PlanningGraph():
         :return:
             adds A nodes to the current level in self.a_levels[level]
         """
-        # TODO add action A level to the planning graph as described in the Russell-Norvig text
         # 1. determine what actions to add and create those PgNode_a objects
         # 2. connect the nodes to the previous S literal level
         # for example, the A0 level will iterate through all possible actions for the problem and add a PgNode_a to a_levels[0]
@@ -329,7 +328,6 @@ class PlanningGraph():
         :return:
             adds S nodes to the current level in self.s_levels[level]
         """
-        # TODO add literal S level to the planning graph as described in the Russell-Norvig text
         # 1. determine what literals to add
         # 2. connect the nodes
         # for example, every A node in the previous level has a list of S nodes in effnodes that represent the effect
@@ -337,6 +335,7 @@ class PlanningGraph():
         #   may be "added" to the set without fear of duplication.  However, it is important to then correctly create and connect
         #   all of the new S nodes as children of all the A nodes that could produce them, and likewise add the A nodes to the
         #   parent sets of the S nodes
+
 
         self.s_levels.append(set())
 
@@ -403,12 +402,8 @@ class PlanningGraph():
         :param node_a2: PgNode_a
         :return: bool
         """
-        # TODO test for Inconsistent Effects between nodes
-        for eff_a1 in node_a1.effnodes:
-            for eff_a2 in node_a2.effnodes:
-                if eff_a1.symbol == eff_a2.symbol and eff_a1 != eff_a2:
-                    return False
-        return True
+
+        return any([any([self.negation_mutex(eff_a1, eff_a2) for eff_a1 in node_a1.effnodes]) for eff_a2 in node_a2.effnodes])
 
     def interference_mutex(self, node_a1: PgNode_a, node_a2: PgNode_a) -> bool:
         """
@@ -424,17 +419,8 @@ class PlanningGraph():
         :param node_a2: PgNode_a
         :return: bool
         """
-        # TODO test for Interference between nodes
-        for eff_a1 in node_a1.effnodes:
-            for eff_a2 in node_a2.prenodes:
-                if eff_a1.symbol == eff_a2.symbol and eff_a1 != eff_a2:
-                    return False
-
-        for eff_a2 in node_a2.effnodes:
-            for eff_a1 in node_a1.prenodes:
-                if eff_a1.symbol == eff_a2.symbol and eff_a1 != eff_a2:
-                    return False
-        return True
+        return any([any([self.negation_mutex(eff_a1, pre_a2) for eff_a1 in node_a1.effnodes]) for pre_a2 in node_a2.prenodes]) \
+               or any([any([self.negation_mutex(pre_a1, eff_a2) for eff_a2 in node_a2.effnodes]) for pre_a1 in node_a1.prenodes])
 
     def competing_needs_mutex(self, node_a1: PgNode_a, node_a2: PgNode_a) -> bool:
         """
@@ -447,8 +433,7 @@ class PlanningGraph():
         :return: bool
         """
 
-        # TODO test for Competing Needs between nodes
-        return False
+        return any([any([req_a1.is_mutex(req_a2) for req_a1 in node_a1.parents]) for req_a2 in node_a2.parents])
 
     def update_s_mutex(self, nodeset: set):
         """ Determine and update sibling mutual exclusion for S-level nodes
@@ -482,7 +467,9 @@ class PlanningGraph():
         :param node_s2: PgNode_s
         :return: bool
         """
-        # TODO test for negation between nodes
+        if node_s1.symbol == node_s2.symbol and node_s1.is_pos != node_s2.is_pos:
+            return True
+
         return False
 
     def inconsistent_support_mutex(self, node_s1: PgNode_s, node_s2: PgNode_s):
@@ -501,8 +488,8 @@ class PlanningGraph():
         :param node_s2: PgNode_s
         :return: bool
         """
-        # TODO test for Inconsistent Support between nodes
-        return False
+
+        return all([all([act_s1.is_mutex(act_s2) for act_s1 in node_s1.parents]) for act_s2 in node_s2.parents])
 
     def h_levelsum(self) -> int:
         """The sum of the level costs of the individual goals (admissible if goals independent)
