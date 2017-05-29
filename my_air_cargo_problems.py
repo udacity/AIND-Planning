@@ -85,7 +85,7 @@ class AirCargoProblem(Problem):
                     for airport in self.airports:
                         precond_pos = [expr('At({}, {})'.format(plane, airport)),
                                        expr('In({}, {})'.format(cargo, plane))]
-                        precond_neg = [expr('At({}, {})'.format(cargo, apt)) for apt in self.airports]
+                        precond_neg = []
                         effect_add = [expr('At({}, {})'.format(cargo, airport))]
                         effect_rem = [expr('In({}, {})'.format(cargo, plane))]
                         unload = Action(expr('Unload({}, {}, {})'.format(cargo, plane, airport)),
@@ -209,6 +209,15 @@ class AirCargoProblem(Problem):
         """
         # TODO implement (see Russell-Norvig Ed-3 10.2.3  or Russell-Norvig Ed-2 11.2)
         count = 0
+
+        kb = PropKB()
+
+        kb.tell(decode_state(node.state, self.state_map).pos_sentence())
+
+        for clause in self.goal:
+            if clause not in kb.clauses:
+                count += 1
+
         return count
 
 
