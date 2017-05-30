@@ -1,5 +1,5 @@
 from aimacode.logic import associate
-from aimacode.utils import expr
+from aimacode.utils import Expr
 
 
 class FluentState():
@@ -12,25 +12,25 @@ class FluentState():
         self.neg = neg_list
 
     def sentence(self):
-        return expr(conjunctive_sentence(self.pos, self.neg))
+        return conjunctive_sentence(self.pos, self.neg)
 
     def pos_sentence(self):
-        return expr(conjunctive_sentence(self.pos, []))
+        return conjunctive_sentence(self.pos, [])
 
 
 def conjunctive_sentence(pos_list, neg_list):
-    """ returns expr conjuntive sentence given positive and negative fluent lists
+    """ returns Expr conjuntive sentence given positive and negative fluent lists
 
     :param pos_list: list of fluents
     :param neg_list: list of fluents
-    :return: expr sentence of fluent conjunction
+    :return: Expr sentence of fluent conjunction
         e.g. "At(C1, SFO) ∧ ~At(P1, SFO)"
     """
     clauses = []
     for f in pos_list:
-        clauses.append(expr("{}".format(f)))
+        clauses.append(f)
     for f in neg_list:
-        clauses.append(expr("~{}".format(f)))
+        clauses.append(Expr('~{}'.format(f.op)))
     return associate('&', clauses)
 
 

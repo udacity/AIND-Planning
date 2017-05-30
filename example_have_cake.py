@@ -4,7 +4,7 @@ from aimacode.search import (
     Node, breadth_first_search, astar_search, depth_first_graph_search,
     uniform_cost_search, greedy_best_first_graph_search, Problem,
 )
-from aimacode.utils import expr
+from aimacode.utils import Expr
 from lp_utils import (
     FluentState, encode_state, decode_state
 )
@@ -21,18 +21,18 @@ class HaveCakeProblem(Problem):
         self.actions_list = self.get_actions()
 
     def get_actions(self):
-        precond_pos = [expr("Have(Cake)")]
+        precond_pos = [Expr("Have(Cake)")]
         precond_neg = []
-        effect_add = [expr("Eaten(Cake)")]
-        effect_rem = [expr("Have(Cake)")]
-        eat_action = Action(expr("Eat(Cake)"),
+        effect_add = [Expr("Eaten(Cake)")]
+        effect_rem = [Expr("Have(Cake)")]
+        eat_action = Action(Expr("Eat(Cake)"),
                             [precond_pos, precond_neg],
                             [effect_add, effect_rem])
         precond_pos = []
-        precond_neg = [expr("Have(Cake)")]
-        effect_add = [expr("Have(Cake)")]
+        precond_neg = [Expr("Have(Cake)")]
+        effect_add = [Expr("Have(Cake)")]
         effect_rem = []
-        bake_action = Action(expr("Bake(Cake)"),
+        bake_action = Action(Expr("Bake(Cake)"),
                              [precond_pos, precond_neg],
                              [effect_add, effect_rem])
         return [eat_action, bake_action]
@@ -42,14 +42,7 @@ class HaveCakeProblem(Problem):
         kb = PropKB()
         kb.tell(decode_state(state, self.state_map).pos_sentence())
         for action in self.actions_list:
-            is_possible = True
-            for clause in action.precond_pos:
-                if clause not in kb.clauses:
-                    is_possible = False
-            for clause in action.precond_neg:
-                if clause in kb.clauses:
-                    is_possible = False
-            if is_possible:
+            if action.check_precond(kb, []):
                 possible_actions.append(action)
         return possible_actions
 
@@ -101,15 +94,15 @@ class HaveCakeProblem(Problem):
 
 def have_cake():
     def get_init():
-        pos = [expr('Have(Cake)'),
+        pos = [Expr('Have(Cake)'),
                ]
-        neg = [expr('Eaten(Cake)'),
+        neg = [Expr('Eaten(Cake)'),
                ]
         return FluentState(pos, neg)
 
     def get_goal():
-        return [expr('Have(Cake)'),
-                expr('Eaten(Cake)'),
+        return [Expr('Have(Cake)'),
+                Expr('Eaten(Cake)'),
                 ]
 
     return HaveCakeProblem(get_init(), get_goal())
@@ -124,10 +117,10 @@ if __name__ == '__main__':
         print('   {}{}'.format(a.name, a.args))
     print("Fluents in this problem are:")
     for f in p.state_map:
-        print('   {}'.format(f))
+        print('   {}'.format(f.op))
     print("Goal requirement for this problem are:")
     for g in p.goal:
-        print('   {}'.format(g))
+        print('   {}'.format(g.op))
     print()
     print("*** Breadth First Search")
     run_search(p, breadth_first_search)

@@ -4,7 +4,7 @@ import sys
 parent = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.join(os.path.dirname(parent), "aimacode"))
 import unittest
-from aimacode.utils import expr
+from aimacode.utils import Expr
 from aimacode.planning import Action
 from example_have_cake import have_cake
 from my_planning_graph import (
@@ -38,20 +38,20 @@ class TestPlanningGraphMutex(unittest.TestCase):
         self.p = have_cake()
         self.pg = PlanningGraph(self.p, self.p.initial)
         # some independent nodes for testing mutex
-        self.na1 = PgNode_a(Action(expr('Go(here)'),
-                                   [[], []], [[expr('At(here)')], []]))
-        self.na2 = PgNode_a(Action(expr('Go(there)'),
-                                   [[], []], [[expr('At(there)')], []]))
-        self.na3 = PgNode_a(Action(expr('Noop(At(there))'),
-                                   [[expr('At(there)')], []], [[expr('At(there)')], []]))
-        self.na4 = PgNode_a(Action(expr('Noop(At(here))'),
-                                   [[expr('At(here)')], []], [[expr('At(here)')], []]))
-        self.na5 = PgNode_a(Action(expr('Reverse(At(here))'),
-                                   [[expr('At(here)')], []], [[], [expr('At(here)')]]))
-        self.ns1 = PgNode_s(expr('At(here)'), True)
-        self.ns2 = PgNode_s(expr('At(there)'), True)
-        self.ns3 = PgNode_s(expr('At(here)'), False)
-        self.ns4 = PgNode_s(expr('At(there)'), False)
+        self.na1 = PgNode_a(Action(Expr('Go(here)'),
+                                   [[], []], [[Expr('At(here)')], []]))
+        self.na2 = PgNode_a(Action(Expr('Go(there)'),
+                                   [[], []], [[Expr('At(there)')], []]))
+        self.na3 = PgNode_a(Action(Expr('Noop(At(there))'),
+                                   [[Expr('At(there)')], []], [[Expr('At(there)')], []]))
+        self.na4 = PgNode_a(Action(Expr('Noop(At(here))'),
+                                   [[Expr('At(here)')], []], [[Expr('At(here)')], []]))
+        self.na5 = PgNode_a(Action(Expr('Reverse(At(here))'),
+                                   [[Expr('At(here)')], []], [[], [Expr('At(here)')]]))
+        self.ns1 = PgNode_s(Expr('At(here)'), True)
+        self.ns2 = PgNode_s(Expr('At(there)'), True)
+        self.ns3 = PgNode_s(Expr('At(here)'), False)
+        self.ns4 = PgNode_s(Expr('At(there)'), False)
         self.na1.children.add(self.ns1)
         self.ns1.parents.add(self.na1)
         self.na2.children.add(self.ns2)
@@ -100,8 +100,8 @@ class TestPlanningGraphMutex(unittest.TestCase):
         self.assertTrue(PlanningGraph.inconsistent_support_mutex(self.pg, self.ns1, self.ns2),
                         "Mutex parent actions should result in inconsistent-support mutex")
 
-        self.na6 = PgNode_a(Action(expr('Go(everywhere)'),
-                                   [[], []], [[expr('At(here)'), expr('At(there)')], []]))
+        self.na6 = PgNode_a(Action(Expr('Go(everywhere)'),
+                                   [[], []], [[Expr('At(here)'), Expr('At(there)')], []]))
         self.na6.children.add(self.ns1)
         self.ns1.parents.add(self.na6)
         self.na6.children.add(self.ns2)
