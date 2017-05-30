@@ -3,7 +3,7 @@ import sys
 parent = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.join(os.path.dirname(parent), "aimacode"))
 from aimacode.planning import Action
-from aimacode.utils import expr
+from aimacode.utils import Expr
 from aimacode.search import Node
 import unittest
 from lp_utils import decode_state
@@ -52,9 +52,9 @@ class TestAirCargoMethods(unittest.TestCase):
     def setUp(self):
         self.p1 = air_cargo_p1()
         self.act1 = Action(
-            expr('Load(C1, P1, SFO)'),
-            [[expr('At(C1, SFO)'), expr('At(P1, SFO)')], []],
-            [[expr('In(C1, P1)')], [expr('At(C1, SFO)')]]
+            Expr('Load(C1, P1, SFO)'),
+            [[Expr('At(C1, SFO)'), Expr('At(P1, SFO)')], []],
+            [[Expr('In(C1, P1)')], [Expr('At(C1, SFO)')]]
         )
 
     def test_AC_get_actions(self):
@@ -73,8 +73,8 @@ class TestAirCargoMethods(unittest.TestCase):
 
     def test_AC_result(self):
         fs = decode_state(self.p1.result(self.p1.initial, self.act1), self.p1.state_map)
-        self.assertTrue(expr('In(C1, P1)') in fs.pos)
-        self.assertTrue(expr('At(C1, SFO)') in fs.neg)
+        self.assertTrue(Expr('In(C1, P1)') in fs.pos)
+        self.assertTrue(Expr('At(C1, SFO)') in fs.neg)
 
     def test_h_ignore_preconditions(self):
         n = Node(self.p1.initial)
