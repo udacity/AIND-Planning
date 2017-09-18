@@ -102,9 +102,14 @@ def main(p_choices, s_choices):
 
 
 def show_solution(node, elapsed_time):
-    print("Plan length: {}  Time elapsed in seconds: {}".format(len(node.solution()), elapsed_time))
-    for action in node.solution():
-        print("{}{}".format(action.name, action.args))
+    if node is None:
+        print("The selected planner did not find a solution for this problem. " +
+              "Make sure you have completed the AirCargoProblem implementation " +
+              "and pass all unit tests first.")
+    else:
+        print("Plan length: {}  Time elapsed in seconds: {}".format(len(node.solution()), elapsed_time))
+        for action in node.solution():
+            print("{}{}".format(action.name, action.args))
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser(description="Solve air cargo planning problems " + 
