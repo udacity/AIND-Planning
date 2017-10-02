@@ -7,6 +7,7 @@ This project includes skeletons for the classes and functions needed to solve de
 With progression search algorithms like those in the navigation problem from lecture, optimal plans for each 
 problem will be computed.  Unlike the navigation problem, there is no simple distance heuristic to aid the agent. 
 Instead, you will implement domain-independent heuristics.
+
 ![Progression air cargo search](images/Progression.PNG)
 
 - Part 1 - Planning problems:
