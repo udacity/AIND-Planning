@@ -10,7 +10,7 @@ import random
 import math
 
 import heapq
-from collections import defaultdict
+from collections import defaultdict, deque
 
 # ______________________________________________________________________________
 # Functions on Sequences and Iterables
@@ -548,32 +548,30 @@ def Stack():
 
 
 class FIFOQueue(Queue):
-
     """A First-In-First-Out Queue."""
 
     def __init__(self):
-        self.A = []
-        self.start = 0
-
-    def append(self, item):
-        self.A.append(item)
+        self._queue = deque()
+        self._members = defaultdict(lambda: 0)
 
     def __len__(self):
-        return len(self.A) - self.start
-
-    def extend(self, items):
-        self.A.extend(items)
-
-    def pop(self):
-        e = self.A[self.start]
-        self.start += 1
-        if self.start > 5 and self.start > len(self.A) / 2:
-            self.A = self.A[self.start:]
-            self.start = 0
-        return e
+        return len(self._queue)
 
     def __contains__(self, item):
-        return item in self.A[self.start:]
+        return self._members[item] > 0
+
+    def append(self, item):
+        self._queue.append(item)
+        self._members[item] += 1
+
+    def extend(self, items):
+        self._queue.extend(items)
+        self._members.update({k: self._members[k] + 1 for k in items})
+
+    def pop(self):
+        item = self._queue.popleft()
+        self._members[item] -= 1
+        return item
 
 
 class PriorityQueue(Queue):
@@ -581,34 +579,34 @@ class PriorityQueue(Queue):
     order) is returned first.  Also supports dict-like lookup.
 
     MODIFIED FROM AIMA VERSION
-        - Use heapq
-        - Use an additional dict to track membership
-        - remove __delitem__ (AIMA version contains error)
+        - Use heapq & an additional dict to track membership
+        - remove __delitem__ (it is not strictly required)
     """
 
     def __init__(self, order=None, f=lambda x: x):
-        self.A = []
-        self._A = defaultdict(lambda: 0)
-        self.f = f
-
-    def append(self, item):
-        heapq.heappush(self.A, (self.f(item), item))
-        self._A[item] += 1
+        self._queue = []
+        self._members = defaultdict(lambda: 0)
+        self.priorityFn = f
 
     def __len__(self):
-        return len(self.A)
-
-    def pop(self):
-        _, item = heapq.heappop(self.A)
-        self._A[item] -= 1
-        return item
+        return len(self._members)
 
     def __contains__(self, item):
-        return self._A[item] > 0
+        return self._members[item] > 0
 
     def __getitem__(self, key):
-        if self._A[key] > 0:
+        if self._members[key] > 0:
             return key
+
+    def append(self, item):
+        heapq.heappush(self._queue, (self.priorityFn(item), item))
+        self._members[item] += 1
+
+    def pop(self):
+        _, item = heapq.heappop(self._queue)
+        self._members[item] -= 1
+        return item
+
 
 # ______________________________________________________________________________
 # Useful Shorthands
