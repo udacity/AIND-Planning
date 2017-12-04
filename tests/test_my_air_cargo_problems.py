@@ -1,12 +1,12 @@
 import os
 import sys
-parent = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.join(os.path.dirname(parent), "aimacode"))
+import unittest
+
 from aimacode.planning import Action
 from aimacode.utils import expr
 from aimacode.search import Node
-import unittest
 from lp_utils import decode_state
+
 from my_air_cargo_problems import (
     air_cargo_p1, air_cargo_p2, air_cargo_p3,
 )

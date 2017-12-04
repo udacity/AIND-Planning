@@ -160,6 +160,7 @@ implemented in the `example_have_cake` module as an example.
 - The `tests` directory includes `unittest` test cases to evaluate your implementations. All tests should pass before you submit your project for review. From the AIND-Planning directory command line:
     - `python -m unittest tests.test_my_air_cargo_problems`
     - `python -m unittest tests.test_my_planning_graph`
+    - You can run all the test cases with additional context by running `python -m unittest -v`
 - The `run_search` script is provided for gathering metrics for various search methods on any or all of the problems and should be used for this purpose.
 
 ## Submission
