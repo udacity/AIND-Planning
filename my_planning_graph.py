@@ -1,6 +1,6 @@
 from aimacode.planning import Action
 from aimacode.search import Problem
-from aimacode.utils import expr
+from aimacode.utils import expr, Expr
 from lp_utils import decode_state
 
 
@@ -47,23 +47,19 @@ class PgNode_s(PgNode):
 
     Args:
     ----------
-    symbol : str
-        A string representing a literal expression from a planning problem
-        domain.
+    symbol : Expr
+        A literal expression from a planning problem domain.
 
     is_pos : bool
         Boolean flag indicating whether the literal expression is positive or
         negative.
     """
 
-    def __init__(self, symbol: str, is_pos: bool):
+    def __init__(self, symbol: Expr, is_pos: bool):
         """S-level Planning Graph node constructor
 
         :param symbol: expr
         :param is_pos: bool
-        Instance variables calculated:
-            literal: expr
-                    fluent in its literal form including negative operator if applicable
         Instance variables inherited from PgNode:
             parents: set of nodes connected to this node in previous A level; initially empty
             children: set of nodes connected to this node in next A level; initially empty
