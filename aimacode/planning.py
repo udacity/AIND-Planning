@@ -32,6 +32,9 @@ class Action:
     def __str__(self):
         return "{}{!s}".format(self.name, self.args)
 
+    def __repr__(self):
+        return "{}{!s}".format(self.name, self.args)
+
     def substitute(self, e, args):
         """Replaces variables in expression with their respective Propostional symbol"""
         new_args = list(e.args)
