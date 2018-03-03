@@ -113,6 +113,53 @@ class TestPlanningGraphMutex(unittest.TestCase):
             self.pg, self.ns1, self.ns2),
             "If one parent action can achieve both states, should NOT be inconsistent-support mutex, even if parent actions are themselves mutex")
 
+    def test_double_linked_s(self):
+        correct = 0
+        incorrect = 0
+        for index, level in enumerate(self.pg.s_levels):
+            try:
+                next_level = self.pg.a_levels[index]
+            except:
+                break
+
+            for maybe_parent in level:
+                for maybe_child in next_level:
+                    if (maybe_parent in maybe_child.parents) == (maybe_child in maybe_parent.children):
+                        correct += 1
+                    else:
+                        incorrect += 1
+
+        self.assertNotEqual(correct, 0, "At least some S-level nodes should be correctly double linked")
+        self.assertEqual(incorrect, 0, "All S-level nodes should be correctly double linked")
+
+    def test_double_linked_a(self):
+        correct = 0
+        incorrect = 0
+        for index, level in enumerate(self.pg.a_levels):
+            try:
+                next_level = self.pg.s_levels[index+1]
+            except:
+                break
+
+            for maybe_parent in level:
+                for maybe_child in next_level:
+                    if (maybe_parent in maybe_child.parents) == (maybe_child in maybe_parent.children):
+                        correct += 1
+                    else:
+                        incorrect += 1
+
+        self.assertNotEqual(correct, 0, "At least some A-level nodes should be correctly double linked")
+        self.assertEqual(incorrect, 0, "All A-level nodes should be correctly double linked")
+
+    def test_not_all_linked(self):
+        for level, next_level in zip(self.pg.s_levels, self.pg.a_levels):
+            for maybe_parent in level:
+                for maybe_child in next_level:
+                    if not (maybe_parent in maybe_child.parents):
+                        return
+
+        self.fail("At least some S-nodes and A-nodes should be not linked")
+
 
 class TestPlanningGraphHeuristics(unittest.TestCase):
     def setUp(self):
